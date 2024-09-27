@@ -1,7 +1,7 @@
 ---
-name: Feature
-about: Suggest an idea for this project
-title: 'Feat: Issue title'
+name: "✅Feature"
+about: 기능 추가 시 작성해주세요.
+title: "[Feat] Issue title"
 labels: ''
 assignees: ''
 
@@ -10,7 +10,7 @@ assignees: ''
 ## Description
 설명을 작성하세요.
 
-## To-do
+## Todo
 - [ ] todo
 - [ ] todo
 
