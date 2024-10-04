@@ -66,4 +66,10 @@ public class MemberService {
         }
     }
 
+    @Transactional
+    public void signOut(String encryptedRefreshToken, String accessToken) {
+
+
+    }
+
 }

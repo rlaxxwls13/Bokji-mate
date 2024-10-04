@@ -1,10 +1,8 @@
 package mover.bokji_mate.Service;
 
 import mover.bokji_mate.domain.Member;
-import mover.bokji_mate.dto.MemberDto;
 import mover.bokji_mate.dto.SignUpDto;
 import mover.bokji_mate.repository.MemberRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,7 +40,7 @@ class MemberServiceTest {
         assertEquals(joinedMember, findMember.get());
     }
 
-    @Test()
+    @Test
     void 중복_아이디_검증() throws Exception {
         //given
         SignUpDto signUpDto1 = SignUpDto.builder()
