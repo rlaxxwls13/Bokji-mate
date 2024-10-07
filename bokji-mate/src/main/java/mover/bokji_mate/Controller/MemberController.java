@@ -10,10 +10,7 @@ import mover.bokji_mate.dto.SignInDto;
 import mover.bokji_mate.dto.SignUpDto;
 import mover.bokji_mate.jwt.JwtTokenProvider;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
@@ -41,10 +38,11 @@ public class MemberController {
     }
 
     @PostMapping("/sign-out")
-    public void signOut(HttpServletRequest request) {
-        String encryptedRefreshToken = jwtTokenProvider.resolveRefreshToken(request);
+    public ResponseEntity signOut(HttpServletRequest request) {
+        String refreshToken = jwtTokenProvider.resolveRefreshToken(request);
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
-        //memberService.signOut();
+        memberService.signOut(refreshToken, accessToken);
+        return ResponseEntity.ok("signed out successfully.");
     }
 
     @PostMapping("/delete-account")

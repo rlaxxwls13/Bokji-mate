@@ -1,5 +1,6 @@
 package mover.bokji_mate.Service;
 
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mover.bokji_mate.domain.Member;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +30,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final RedisService redisService;
 
     @Transactional
     public JwtToken signIn(String username, String password) {
@@ -41,6 +44,9 @@ public class MemberService {
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
+
+        long refreshTokenExpirationMillis = jwtTokenProvider.getRefreshTokenExpirationMillis();
+        redisService.setValues(authentication.getName(), jwtToken.getRefreshToken(), Duration.ofMillis(refreshTokenExpirationMillis));
 
         return jwtToken;
     }
@@ -67,8 +73,16 @@ public class MemberService {
     }
 
     @Transactional
-    public void signOut(String encryptedRefreshToken, String accessToken) {
+    public void signOut(String refreshToken, String accessToken) {
+        Claims claims = jwtTokenProvider.parseClaims(refreshToken);
+        String username = claims.getSubject();
+        if (redisService.checkExistsValue(refreshToken)) {
+            redisService.deleteValues(username);
 
+            // 로그아웃시 Access Token 블랙리스트에 저장
+            long accessTokenExpirationMillis = jwtTokenProvider.getAccessTokenExpirationMillis();
+            redisService.setValues(accessToken, "logout", Duration.ofMillis(accessTokenExpirationMillis));
+        }
 
     }
 
