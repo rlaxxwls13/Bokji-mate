@@ -12,6 +12,7 @@ import mover.bokji_mate.repository.MemberRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final RedisService redisService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Transactional
     public JwtToken signIn(String username, String password) {
@@ -45,6 +47,7 @@ public class MemberService {
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
 
+        // 4. redis에 refresh token 저장
         long refreshTokenExpirationMillis = jwtTokenProvider.getRefreshTokenExpirationMillis();
         redisService.setValues(authentication.getName(), jwtToken.getRefreshToken(), Duration.ofMillis(refreshTokenExpirationMillis));
 
@@ -53,10 +56,6 @@ public class MemberService {
 
     @Transactional
     public MemberDto signUp(SignUpDto signUpDto) {
-        /*if (memberRepository.existsByUsername(signUpDto.getUsername())){
-            throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
-        }
-         */
         validateDuplicateMember(signUpDto);
         //password 암호화
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword());
@@ -84,6 +83,22 @@ public class MemberService {
             redisService.setValues(accessToken, "logout", Duration.ofMillis(accessTokenExpirationMillis));
         }
 
+    }
+
+    @Transactional
+    public String reissueAccessToken(String refreshToken) {
+        Claims claims = jwtTokenProvider.parseClaims(refreshToken);
+        String username = claims.getSubject();
+        String redisRefreshToken = redisService.getValues(username);
+
+        if (redisService.checkExistsValue(redisRefreshToken) && refreshToken.equals(redisRefreshToken)) {
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
+            String newAccessToken = jwtToken.getAccessToken();
+
+            return newAccessToken;
+        } else throw new IllegalStateException();
     }
 
 }

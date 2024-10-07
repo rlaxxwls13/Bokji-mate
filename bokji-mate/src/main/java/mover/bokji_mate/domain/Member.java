@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +31,13 @@ public class Member implements UserDetails {
     private String password;
 
     private String nickname;
+
+    private String phoneNumber;
+
+    private LocalDate birthDate;
+
+    @ElementCollection
+    private List<String> interests;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default

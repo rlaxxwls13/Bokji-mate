@@ -57,7 +57,6 @@ class MemberServiceTest {
 
         //when
         memberService.signUp(signUpDto1);
-        //memberService.signUp(signUpDto2);
 
         //then
         assertThrows(IllegalStateException.class, () -> {

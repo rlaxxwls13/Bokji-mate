@@ -100,6 +100,7 @@ class MemberControllerTest {
 
         JwtToken jwtToken = memberService.signIn(signInDto.getUsername(), signInDto.getPassword());
 
+        //로그아웃
         memberService.signOut(jwtToken.getRefreshToken(), jwtToken.getAccessToken());
 
         //HttpHeaders 객체 생성 및 토큰 추가
@@ -113,7 +114,7 @@ class MemberControllerTest {
 
         log.info("http status = {}", responseEntity.getStatusCode());
 
-        // 5. 로그아웃 후 접근이 거부되는지 확인
+        //로그아웃 후 접근이 거부되는지 확인
         //Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 
         //Redis에서 Refresh Token 확인 (삭제되었는지 확인)
@@ -126,5 +127,34 @@ class MemberControllerTest {
         log.info("access token = {}", accessTokenStatus);
         Assertions.assertThat(accessTokenStatus).isEqualTo("logout");
 
+    }
+
+    @Test
+    void reissueAccessToken() throws Exception {
+        //회원가입
+        memberService.signUp(signUpDto);
+
+        //로그인
+        SignInDto signInDto = SignInDto.builder()
+                .username("member")
+                .password("12345678")
+                .build();
+
+        JwtToken jwtToken = memberService.signIn(signInDto.getUsername(), signInDto.getPassword());
+
+        String newAccessToken = memberService.reissueAccessToken(jwtToken.getRefreshToken());
+
+        Assertions.assertThat(newAccessToken).isNotEqualTo(jwtToken.getAccessToken());
+
+        //HttpHeaders 객체 생성 및 토큰 추가
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setBearerAuth(newAccessToken);
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        //API 요청 설정
+        String url = "http://localhost:" + port + "/members/test";
+        ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(url, new HttpEntity<>(httpHeaders), String.class);
+
+        log.info("http status = {}", responseEntity.getStatusCode());
     }
 }

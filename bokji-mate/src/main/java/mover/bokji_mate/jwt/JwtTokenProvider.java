@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import mover.bokji_mate.dto.JwtToken;
@@ -26,8 +27,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class JwtTokenProvider {
-    //private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;    // 30분
-    //private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 *7;   // 7일
+    public static final String BEARER_TYPE = "Bearer";
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String REFRESH_HEADER = "Refresh";
+    public static final String BEARER_PREFIX = "Bearer ";
 
     private final Key key;
 
@@ -44,6 +47,7 @@ public class JwtTokenProvider {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
+
 
     //Member 정보를 가지고 AccessToken, RefreshToken을 생성하는 메서드
     public JwtToken generateToken(Authentication authentication) {
@@ -148,4 +152,12 @@ public class JwtTokenProvider {
         return null;
     }
 
+    public void accessTokenSetHeader(String accessToken, HttpServletResponse response) {
+        String headerValue = "Bearer " + accessToken;
+        response.setHeader("Authorization", headerValue);
+    }
+
+    public void refresshTokenSetHeader(String refreshToken, HttpServletResponse response) {
+        response.setHeader("Refresh", refreshToken);
+    }
 }

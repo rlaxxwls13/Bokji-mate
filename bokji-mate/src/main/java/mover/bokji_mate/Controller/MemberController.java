@@ -1,6 +1,7 @@
 package mover.bokji_mate.Controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mover.bokji_mate.Service.MemberService;
@@ -42,11 +43,32 @@ public class MemberController {
         String refreshToken = jwtTokenProvider.resolveRefreshToken(request);
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
         memberService.signOut(refreshToken, accessToken);
+
+
         return ResponseEntity.ok("signed out successfully.");
     }
 
     @PostMapping("/delete-account")
     public void deleteAccount() {
+
+    }
+
+    @PatchMapping("/reissue")
+    public ResponseEntity reissue(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = jwtTokenProvider.resolveRefreshToken(request);
+        String newAccessToken = memberService.reissueAccessToken(refreshToken);
+        jwtTokenProvider.accessTokenSetHeader(newAccessToken, response);
+
+        return ResponseEntity.ok("The access token was successfully reissued.");
+    }
+
+    @GetMapping("/{username}")
+    public void getMemberInfo() {
+
+    }
+
+    @PutMapping("/{username}")
+    public void updateMemberInfo() {
 
     }
 
