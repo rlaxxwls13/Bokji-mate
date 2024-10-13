@@ -17,6 +17,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
@@ -39,6 +42,9 @@ class MemberControllerTest {
                 .username("member")
                 .password("12345678")
                 .nickname("닉네임")
+                .phoneNumber("01012341234")
+                .birthDate(LocalDate.parse("2001-07-13"))
+                .interests(List.of("관심사1", "관심사2", "관심사3"))
                 .build();
     }
 
@@ -156,5 +162,27 @@ class MemberControllerTest {
         ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(url, new HttpEntity<>(httpHeaders), String.class);
 
         log.info("http status = {}", responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void getMemberInfo() throws Exception{
+        //회원가입
+        memberService.signUp(signUpDto);
+
+        //로그인
+        SignInDto signInDto = SignInDto.builder()
+                .username("member")
+                .password("12345678")
+                .build();
+
+        JwtToken jwtToken = memberService.signIn(signInDto.getUsername(), signInDto.getPassword());
+
+        MemberDto memberDto = memberService.getMemberDto(jwtToken.getAccessToken());
+        log.info("member dto = {}", memberDto);
+    }
+
+    @Test
+    public void editMemberInfo() throws Exception{
+
     }
 }

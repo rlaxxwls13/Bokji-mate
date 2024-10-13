@@ -101,4 +101,24 @@ public class MemberService {
         } else throw new IllegalStateException();
     }
 
+    @Transactional
+    public MemberDto getMemberDto(String accessToken) {
+        Claims claims = jwtTokenProvider.parseClaims(accessToken);
+        String username = claims.getSubject();
+        Member findMember = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Member is not found"));
+        MemberDto memberDto = MemberDto.toDto(findMember);
+        return memberDto;
+    }
+
+    @Transactional
+    public void updateProfile(MemberDto memberDto) {
+        String username = memberDto.getUsername();
+        Member findMember = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Member is not found"));
+        findMember.setNickname(memberDto.getNickname());
+        findMember.setPhoneNumber(memberDto.getPhoneNumber());
+        findMember.setBirthDate(memberDto.getBirthDate());
+        findMember.setInterests(memberDto.getInterests());
+    }
 }

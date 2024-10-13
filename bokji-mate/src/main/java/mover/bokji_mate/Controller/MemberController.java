@@ -1,5 +1,6 @@
 package mover.bokji_mate.Controller;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -62,14 +63,18 @@ public class MemberController {
         return ResponseEntity.ok("The access token was successfully reissued.");
     }
 
-    @GetMapping("/{username}")
-    public void getMemberInfo() {
+    @GetMapping("/edit")
+    public ResponseEntity<MemberDto> getMemberInfo(HttpServletRequest request) {
+        String accessToken = jwtTokenProvider.resloveAccessToken(request);
+        MemberDto memberDto = memberService.getMemberDto(accessToken);
 
+        return ResponseEntity.ok(memberDto);
     }
 
-    @PutMapping("/{username}")
-    public void updateMemberInfo() {
-
+    @PutMapping("/edit")
+    public ResponseEntity<String> updateMemberInfo(@RequestBody MemberDto memberDto) {
+        memberService.updateProfile(memberDto);
+        return ResponseEntity.ok("Member updated successfully");
     }
 
     @PostMapping("test")
