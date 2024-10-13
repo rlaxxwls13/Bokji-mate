@@ -3,6 +3,9 @@ package mover.bokji_mate.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import mover.bokji_mate.dto.JwtToken;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -23,16 +27,27 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class JwtTokenProvider {
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;    // 30분
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 *7;   // 7일
+    public static final String BEARER_TYPE = "Bearer";
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String REFRESH_HEADER = "Refresh";
+    public static final String BEARER_PREFIX = "Bearer ";
 
     private final Key key;
+
+    @Getter
+    @Value("${jwt.access-token-expiration-millis}")
+    private long accessTokenExpirationMillis;
+
+    @Getter
+    @Value("${jwt.refresh-token-expiration-millis}")
+    private long refreshTokenExpirationMillis;
 
     // application.properties에서 secret 값 가져와서 key에 저장
     public  JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
+
 
     //Member 정보를 가지고 AccessToken, RefreshToken을 생성하는 메서드
     public JwtToken generateToken(Authentication authentication) {
@@ -44,7 +59,7 @@ public class JwtTokenProvider {
         long now = (new Date()).getTime();
 
         //Access Token 생성
-        Date accessTokenExpiresln = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
+        Date accessTokenExpiresln = new Date(now + accessTokenExpirationMillis);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -54,7 +69,8 @@ public class JwtTokenProvider {
 
         //Refresh Token 생성
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
+                .setSubject(authentication.getName())
+                .setExpiration(new Date(now + refreshTokenExpirationMillis))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -105,16 +121,43 @@ public class JwtTokenProvider {
         return false;
     }
 
-    // access Token
-    private Claims parseClaims(String accessToken) {
+    // 토큰 복호화
+    public Claims parseClaims(String token) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
-                    .parseClaimsJws(accessToken)
+                    .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
+    }
+
+    // Request Header에서 Access Token 추출
+    public String resloveAccessToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    // Request Header에서 Refresh Token 추출
+    public String resolveRefreshToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Refresh");
+        if (StringUtils.hasText(bearerToken)) {
+            return bearerToken;
+        }
+        return null;
+    }
+
+    public void accessTokenSetHeader(String accessToken, HttpServletResponse response) {
+        String headerValue = "Bearer " + accessToken;
+        response.setHeader("Authorization", headerValue);
+    }
+
+    public void refresshTokenSetHeader(String refreshToken, HttpServletResponse response) {
+        response.setHeader("Refresh", refreshToken);
     }
 }
