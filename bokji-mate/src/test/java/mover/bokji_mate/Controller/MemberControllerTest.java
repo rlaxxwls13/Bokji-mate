@@ -107,7 +107,7 @@ class MemberControllerTest {
         JwtToken jwtToken = memberService.signIn(signInDto.getUsername(), signInDto.getPassword());
 
         //로그아웃
-        memberService.signOut(jwtToken.getRefreshToken(), jwtToken.getAccessToken());
+        memberService.signOut(jwtToken.getAccessToken());
 
         //HttpHeaders 객체 생성 및 토큰 추가
         HttpHeaders httpHeaders = new HttpHeaders();

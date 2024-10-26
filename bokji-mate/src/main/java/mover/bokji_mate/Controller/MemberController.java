@@ -1,6 +1,7 @@
 package mover.bokji_mate.Controller;
 
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,20 +31,28 @@ public class MemberController {
     }
 
     @PostMapping("/sign-in")
-    public JwtToken signIn(@RequestBody SignInDto signInDto) {
+    public JwtToken signIn(@RequestBody SignInDto signInDto, HttpServletResponse response) {
         String username = signInDto.getUsername();
         String password = signInDto.getPassword();
         JwtToken jwtToken = memberService.signIn(username, password);
         log.info("request username = {}, password = {}", username, password);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
+
+        // 쿠키에 refresh token 저장
+        Cookie refreshTokenCookie = new Cookie("refreshToken", jwtToken.getRefreshToken());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(60 * 60 * 24 * 30);
+        response.addCookie(refreshTokenCookie);
+
         return jwtToken;
     }
 
     @PostMapping("/sign-out")
     public ResponseEntity signOut(HttpServletRequest request) {
-        String refreshToken = jwtTokenProvider.resolveRefreshToken(request);
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
-        memberService.signOut(refreshToken, accessToken);
+        memberService.signOut(accessToken);
 
 
         return ResponseEntity.ok("signed out successfully.");

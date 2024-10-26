@@ -37,6 +37,9 @@ public class Member implements UserDetails {
 
     private LocalDate birthDate;
 
+    @OneToMany(mappedBy = "member")
+    private List<Scrap> scraps;
+
     @ElementCollection
     private List<String> interests;
 
