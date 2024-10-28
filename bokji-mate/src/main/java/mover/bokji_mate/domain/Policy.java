@@ -17,6 +17,7 @@ public class Policy {
     private Long id;
     private String title;
     private String content;
+    private String department;
     private String category;
     private LocalDate startDate;
     private LocalDate endDate;
