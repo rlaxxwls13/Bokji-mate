@@ -54,7 +54,6 @@ public class MemberController {
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
         memberService.signOut(accessToken);
 
-
         return ResponseEntity.ok("signed out successfully.");
     }
 
