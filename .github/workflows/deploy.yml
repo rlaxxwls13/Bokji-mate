@@ -15,7 +15,7 @@ jobs:
 
     - name: Log in to Naver Cloud Registry
       run: |
-        docker login ${{ secrets.NCP_REGISTRY_SERVER }} -u "${{ secrets.NCP_REGISTRY_USERNAME }}" --password-stdin <<< "${{ secrets.NCP_REGISTRY_PASSWORD }}"
+        docker login ${{ secrets.NCP_REGISTRY_SERVER }} --username "${{ secrets.NCP_REGISTRY_USERNAME }}" --password-stdin <<< "${{ secrets.NCP_REGISTRY_PASSWORD }}"
 
     - name: Build and Push Docker Image
       run: |
