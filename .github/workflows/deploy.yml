@@ -1,0 +1,40 @@
+name: CI/CD for Spring Boot App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Log in to Naver Cloud Registry
+      env:
+        REGISTRY_USERNAME: ${{ secrets.NCP_REGISTRY_USERNAME }}
+        REGISTRY_PASSWORD: ${{ secrets.NCP_REGISTRY_PASSWORD }}
+      run: |
+        echo $REGISTRY_PASSWORD | docker login ${{ secrets.NCP_REGISTRY_SERVER }} \
+          -u $REGISTRY_USERNAME --password-stdin
+
+    - name: Build Docker image
+      run: |
+        docker build -t ${{ secrets.NCP_REGISTRY_SERVER }}/springboot-app:latest .
+
+    - name: Push Docker image
+      run: |
+        docker push ${{ secrets.NCP_REGISTRY_SERVER }}/springboot-app:latest
+
+    - name: Set up kubectl
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG_CONTENTS }}" > ~/.kube/config
+
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl set image deployment/spring-boot-app \
+          spring-boot-app=${{ secrets.NCP_REGISTRY_SERVER }}/springboot-app:latest
