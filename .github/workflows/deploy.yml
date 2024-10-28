@@ -1,37 +1,60 @@
-name: CI/CD for Spring Boot App
-
+name: Auto deploy to NCP
+run-name: Running
 on:
   push:
     branches:
       - main
 
 jobs:
-  build-and-deploy:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    # 체크아웃 및 JDK 세팅
+    - name : Checkout
+      uses: actions/checkout@v3
+      with:
+        ref: main
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'zulu'
+    # Secret YML 파일 생성
+    - name: Setting secret
+      run: |
+        mkdir -p src/main/resources
+        echo "spring.datasource.password=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application.properties
+        echo "jwt.secret=${{ secrets.JWT_SECRET }}" >> src/main/resources/application.properties
+        find src
+      shell: bash
+    # Gradle 권한 부여
+    - name: Grant permission for gradlew
+      run: chmod +x ./gradlew
+    # Test 없이 빌드
+    - name: Build with Gradle
+      run: ./gradlew clean build -x test
+    #빌드한 jar 파일을 도커 이미지로 빌드하고 도커 허브에 푸시
+    - name: web docker build and push
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker build -t ${{ secrets.DOCKER_REPO }}/my-project .
+        docker push ${{ secrets.DOCKER_REPO }}/my-project
+
+  deploy:
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Log in to Naver Cloud Registry
-      run: |
-        docker login ${{ secrets.NCP_REGISTRY_SERVER }} -u "${{ secrets.NCP_ACCESSKEY }}" --password-stdin <<< "${{ secrets.NCP_REGISTRY_PASSWORD }}"
-
-    - name: Build and Push Docker Image
-      run: |
-        docker build -t ${{ secrets.NCP_REGISTRY_SERVER }}/springboot-app:latest .
-        docker push ${{ secrets.NCP_REGISTRY_SERVER }}/springboot-app:latest
-
-    - name: Configure kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: 'latest'
-
-    - name: Apply kubeconfig
-      run: |
-        echo "${{ secrets.KUBECONFIG_CONTENTS }}" > $HOME/.kube/config
-
-    - name: Deploy to Kubernetes
-      run: |
-        kubectl set image deployment/spring-boot-app \
-          spring-boot-app=${{ secrets.NCP_REGISTRY_SERVER }}/springboot-app:latest
+      # kubeconfig 설정
+      - name: Configure kubeconfig
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          mkdir -p ~/.kube
+          echo "$KUBECONFIG_DATA" | base64 --decode > ~/.kube/config
+      
+      # NCP 클러스터에서 최신 이미지 pull 및 적용
+      - name: Deploy to NCP cluster
+        run: |
+          kubectl set image deployment/my-deployment my-container=${{ secrets.DOCKER_REPO }}/my-project:latest
+          kubectl rollout status deployment/my-deployment
