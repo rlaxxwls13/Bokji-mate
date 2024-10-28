@@ -40,6 +40,8 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "member")
     private List<Scrap> scraps;
 
+    private Long scrapCount = 0L;
+
     @ElementCollection
     private List<String> interests;
 

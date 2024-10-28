@@ -47,6 +47,7 @@ public class PolicyService {
                 .policy(findPolicy)
                 .build();
         scrapRepository.save(scrap);
+        findMember.setScrapCount(findMember.getScrapCount() + 1);
         findPolicy.setScrapCount(findPolicy.getScrapCount() + 1);
     }
 
@@ -63,6 +64,7 @@ public class PolicyService {
                 .orElseThrow(() -> new RuntimeException("Scrap is not found"));
 
         scrapRepository.delete(findScrap);
+        findMember.setScrapCount(findMember.getScrapCount() - 1);
         findPolicy.setScrapCount(findPolicy.getScrapCount() - 1);
     }
 
