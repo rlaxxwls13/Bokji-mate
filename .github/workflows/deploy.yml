@@ -14,13 +14,8 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Log in to Naver Cloud Registry
-      env:
-        REGISTRY_USERNAME: ${{ secrets.NCP_REGISTRY_USERNAME }}
-        REGISTRY_PASSWORD: ${{ secrets.NCP_REGISTRY_PASSWORD }}
       run: |
-        echo "${{ secrets.NCP_REGISTRY_PASSWORD }}" | \
-        docker login ${{ secrets.NCP_REGISTRY_SERVER }} \
-          -u "${{ secrets.NCP_REGISTRY_USERNAME }}" --password-stdin
+        docker login ${{ secrets.NCP_REGISTRY_SERVER }} -u "${{ secrets.NCP_REGISTRY_USERNAME }}" --password-stdin <<< "${{ secrets.NCP_REGISTRY_PASSWORD }}"
 
     - name: Build and Push Docker Image
       run: |
