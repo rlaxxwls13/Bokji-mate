@@ -72,10 +72,11 @@ public class MemberService {
     }
 
     @Transactional
-    public void signOut(String refreshToken, String accessToken) {
-        Claims claims = jwtTokenProvider.parseClaims(refreshToken);
+    public void signOut(String accessToken) {
+        Claims claims = jwtTokenProvider.parseClaims(accessToken);
         String username = claims.getSubject();
-        if (redisService.checkExistsValue(refreshToken)) {
+
+        if (!redisService.getValues(username).equals("false")) {
             redisService.deleteValues(username);
 
             // 로그아웃시 Access Token 블랙리스트에 저장

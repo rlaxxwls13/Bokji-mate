@@ -65,7 +65,7 @@ class RedisServiceTest {
         String findValue = redisService.getValues(KEY);
 
         //then
-        Assertions.assertThat(findValue).isEqualTo("flase");
+        Assertions.assertThat(findValue).isEqualTo("false");
     }
 
     @Test

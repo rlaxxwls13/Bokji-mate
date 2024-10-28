@@ -32,7 +32,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
 
         // 2. 토큰 유효성 검사
-        if(StringUtils.hasText(accessToken) && doNotLogout(accessToken) && jwtTokenProvider.validateToken(accessToken)) {
+        if (StringUtils.hasText(accessToken) && doNotLogout(accessToken) && jwtTokenProvider.validateToken(accessToken)) {
             setAuthenticationToContext(accessToken);
         }
         filterChain.doFilter(request, response);

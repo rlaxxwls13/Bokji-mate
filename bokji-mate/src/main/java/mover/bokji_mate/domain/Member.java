@@ -37,12 +37,16 @@ public class Member implements UserDetails {
 
     private LocalDate birthDate;
 
+    @OneToMany(mappedBy = "member")
+    private List<Scrap> scraps;
+
     @ElementCollection
     private List<String> interests;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles.stream()
