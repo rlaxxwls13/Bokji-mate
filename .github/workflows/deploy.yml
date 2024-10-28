@@ -18,21 +18,23 @@ jobs:
         REGISTRY_USERNAME: ${{ secrets.NCP_REGISTRY_USERNAME }}
         REGISTRY_PASSWORD: ${{ secrets.NCP_REGISTRY_PASSWORD }}
       run: |
-        echo $REGISTRY_PASSWORD | docker login ${{ secrets.NCP_REGISTRY_SERVER }} \
-          -u $REGISTRY_USERNAME --password-stdin
+        echo "${{ secrets.NCP_REGISTRY_PASSWORD }}" | \
+        docker login ${{ secrets.NCP_REGISTRY_SERVER }} \
+          -u "${{ secrets.NCP_REGISTRY_USERNAME }}" --password-stdin
 
-    - name: Build Docker image
+    - name: Build and Push Docker Image
       run: |
         docker build -t ${{ secrets.NCP_REGISTRY_SERVER }}/springboot-app:latest .
-
-    - name: Push Docker image
-      run: |
         docker push ${{ secrets.NCP_REGISTRY_SERVER }}/springboot-app:latest
 
-    - name: Set up kubectl
+    - name: Configure kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: Apply kubeconfig
       run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBECONFIG_CONTENTS }}" > ~/.kube/config
+        echo "${{ secrets.KUBECONFIG_CONTENTS }}" > $HOME/.kube/config
 
     - name: Deploy to Kubernetes
       run: |
