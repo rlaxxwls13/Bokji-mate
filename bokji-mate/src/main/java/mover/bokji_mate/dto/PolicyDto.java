@@ -15,6 +15,7 @@ public class PolicyDto {
     private String title;
     private String content;
     private String category;
+    private String department;
     private LocalDate startDate;
     private LocalDate endDate;
     private Long views;
@@ -26,6 +27,7 @@ public class PolicyDto {
                 .title(policy.getTitle())
                 .content(policy.getContent())
                 .category(policy.getCategory())
+                .department(policy.getDepartment())
                 .startDate(policy.getStartDate())
                 .endDate(policy.getEndDate())
                 .views(policy.getViews())
@@ -39,6 +41,7 @@ public class PolicyDto {
                 .title(title)
                 .content(content)
                 .category(category)
+                .department(department)
                 .startDate(startDate)
                 .endDate(endDate)
                 .views(views)

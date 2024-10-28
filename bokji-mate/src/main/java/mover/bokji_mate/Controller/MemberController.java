@@ -30,6 +30,12 @@ public class MemberController {
         return ResponseEntity.ok(savedMemberDto);
     }
 
+    @PostMapping("/sign-up/validate-username")
+    public ResponseEntity<String> validateUsername(@RequestParam String username) {
+        memberService.validateDuplicateMember(username);
+        return ResponseEntity.ok(username);
+    }
+
     @PostMapping("/sign-in")
     public JwtToken signIn(@RequestBody SignInDto signInDto, HttpServletResponse response) {
         String username = signInDto.getUsername();

@@ -56,7 +56,7 @@ public class MemberService {
 
     @Transactional
     public MemberDto signUp(SignUpDto signUpDto) {
-        validateDuplicateMember(signUpDto);
+        validateDuplicateMember(signUpDto.getUsername());
         //password 암호화
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword());
         List<String> roles = new ArrayList<>();
@@ -64,8 +64,8 @@ public class MemberService {
         return MemberDto.toDto(memberRepository.save(signUpDto.toEntity(encodedPassword, roles)));
     }
 
-    private void validateDuplicateMember(SignUpDto signUpDto) {
-        Optional<Member> findMembers = memberRepository.findByUsername(signUpDto.getUsername());
+    public void validateDuplicateMember(String username) {
+        Optional<Member> findMembers = memberRepository.findByUsername(username);
         if(!findMembers.isEmpty()) {
             throw new IllegalStateException("이미 사용 중인 사용자 이름입니다.");
         }
