@@ -124,4 +124,21 @@ public class MemberService {
         findMember.setResidence(memberDto.getResidence());
         findMember.setInterests(memberDto.getInterests());
     }
+
+    @Transactional
+    public void updatePassword(String accessToken, String currentPassword, String updatePassword) {
+        Claims claims = jwtTokenProvider.parseClaims(accessToken);
+        String username = claims.getSubject();
+        Member findMember = memberRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Member is not found"));
+
+        log.info("current password = {}", currentPassword);
+
+        if(!passwordEncoder.matches(currentPassword, findMember.getPassword())) {
+            throw new IllegalArgumentException("Current password is incorrect.");
+        }
+
+        String encodedPassword = passwordEncoder.encode(updatePassword);
+        findMember.setPassword(encodedPassword);
+        memberRepository.save(findMember);
+    }
 }

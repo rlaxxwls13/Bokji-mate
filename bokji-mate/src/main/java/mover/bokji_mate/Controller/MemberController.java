@@ -7,10 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mover.bokji_mate.Service.MemberService;
-import mover.bokji_mate.dto.JwtToken;
-import mover.bokji_mate.dto.MemberDto;
-import mover.bokji_mate.dto.SignInDto;
-import mover.bokji_mate.dto.SignUpDto;
+import mover.bokji_mate.dto.*;
 import mover.bokji_mate.jwt.JwtTokenProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -89,6 +86,13 @@ public class MemberController {
     public ResponseEntity<String> updateMemberInfo(@RequestBody MemberDto memberDto) {
         memberService.updateProfile(memberDto);
         return ResponseEntity.ok("Member updated successfully");
+    }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<String> editPassword(HttpServletRequest request, @RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+        String accessToken = jwtTokenProvider.resloveAccessToken(request);
+        memberService.updatePassword(accessToken, passwordUpdateRequest.getCurrentPassword(), passwordUpdateRequest.getUpdatePassword());
+        return ResponseEntity.ok("Password updated successfully");
     }
 
     @PostMapping("test")
