@@ -109,6 +109,17 @@ public class PolicyService {
                 .collect(Collectors.toList());
     }
 
+    // 정책 검색 기능
+    @Transactional(readOnly = true)
+    public List<PolicyDto> searchPolicy(String keyword) {
+        List<Policy> policies = policyRepository.findByTitleContainingIgnoreCase(keyword);
+        return policies.stream()
+                .map(PolicyDto::toDto)
+                .collect(Collectors.toList());
+    }
+
+
+
 
 
 

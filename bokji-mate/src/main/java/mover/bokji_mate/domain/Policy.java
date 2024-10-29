@@ -16,6 +16,8 @@ public class Policy {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
     private String department;
     private String category;
