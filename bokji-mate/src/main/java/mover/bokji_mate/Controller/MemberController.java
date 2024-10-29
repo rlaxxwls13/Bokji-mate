@@ -95,6 +95,12 @@ public class MemberController {
         return ResponseEntity.ok("Password updated successfully");
     }
 
+    @GetMapping("/get-userId")
+    public ResponseEntity<Long> getUserId(@RequestParam String accessToken) {
+        Long userId = memberService.getUserId(accessToken);
+        return ResponseEntity.ok(userId);
+    }
+
     @PostMapping("test")
     public String test() {
         return "success";
