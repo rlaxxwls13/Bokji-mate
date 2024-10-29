@@ -4,6 +4,7 @@ import lombok.*;
 import mover.bokji_mate.domain.Policy;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Builder
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 public class PolicyDto {
     private Long id;
     private String title;
-    private String category;
+    private List<String> categories;
     private String department;
     private String content;
     private LocalDate startDate;
@@ -25,7 +26,7 @@ public class PolicyDto {
         return PolicyDto.builder()
                 .id(policy.getId())
                 .title(policy.getTitle())
-                .category(policy.getCategory())
+                .categories(policy.getCategories())
                 .department(policy.getDepartment())
                 .content(policy.getContent())
                 .startDate(policy.getStartDate())
@@ -39,7 +40,7 @@ public class PolicyDto {
         return Policy.builder()
                 .id(id)
                 .title(title)
-                .category(category)
+                .categories(categories)
                 .department(department)
                 .content(content)
                 .startDate(startDate)

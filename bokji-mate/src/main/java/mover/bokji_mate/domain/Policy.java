@@ -20,7 +20,7 @@ public class Policy {
     @Column(columnDefinition = "TEXT")
     private String content;
     private String department;
-    private String category;
+    private List<String> categories;
     private LocalDate startDate;
     private LocalDate endDate;
     @Builder.Default
