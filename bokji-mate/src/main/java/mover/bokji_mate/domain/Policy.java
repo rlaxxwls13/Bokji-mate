@@ -20,6 +20,7 @@ public class Policy {
     @Column(columnDefinition = "TEXT")
     private String content;
     private String department;
+    @ElementCollection
     private List<String> categories;
     private LocalDate startDate;
     private LocalDate endDate;
