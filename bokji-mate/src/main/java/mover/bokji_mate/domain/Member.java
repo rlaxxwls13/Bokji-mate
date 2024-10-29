@@ -33,9 +33,13 @@ public class Member implements UserDetails {
 
     private String nickname;
 
-    private String phoneNumber;
-
     private LocalDate birthDate;
+
+    private String job;
+
+    private String workExperience;
+
+    private String residence;
 
     @OneToMany(mappedBy = "member")
     private List<Scrap> scraps;

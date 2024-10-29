@@ -19,8 +19,10 @@ public class SignUpDto {
     private String username;
     private String password;
     private String nickname;
-    private String phoneNumber;
     private LocalDate birthDate;
+    private String job;
+    private String workExperience;
+    private String residence;
     private List<String> interests;
     @Builder.Default
     private List<String> roles = new ArrayList<>();
@@ -30,8 +32,10 @@ public class SignUpDto {
                 .username(username)
                 .password(encodedPassword)
                 .nickname(nickname)
-                .phoneNumber(phoneNumber)
                 .birthDate(birthDate)
+                .job(job)
+                .workExperience(workExperience)
+                .residence(residence)
                 .interests(interests)
                 .roles(roles)
                 .build();

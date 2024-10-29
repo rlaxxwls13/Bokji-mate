@@ -16,8 +16,10 @@ public class MemberDto {
     private Long id;
     private String username;
     private String nickname;
-    private String phoneNumber;
     private LocalDate birthDate;
+    private String job;
+    private String workExperience;
+    private String residence;
     private List<String> interests;
 
     static public MemberDto toDto(Member member) {
@@ -25,8 +27,10 @@ public class MemberDto {
                 .id(member.getId())
                 .username(member.getUsername())
                 .nickname(member.getNickname())
-                .phoneNumber(member.getPhoneNumber())
                 .birthDate(member.getBirthDate())
+                .job(member.getJob())
+                .workExperience(member.getWorkExperience())
+                .residence(member.getResidence())
                 .interests(member.getInterests())
                 .build();
     }
@@ -36,7 +40,6 @@ public class MemberDto {
                 .id(id)
                 .username(username)
                 .nickname(nickname)
-                .phoneNumber(phoneNumber)
                 .birthDate(birthDate)
                 .interests(interests)
                 .build();

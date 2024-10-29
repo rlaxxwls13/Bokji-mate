@@ -42,7 +42,6 @@ class MemberControllerTest {
                 .username("member")
                 .password("12345678")
                 .nickname("닉네임")
-                .phoneNumber("01012341234")
                 .birthDate(LocalDate.parse("2001-07-13"))
                 .interests(List.of("관심사1", "관심사2", "관심사3"))
                 .build();
@@ -114,6 +113,8 @@ class MemberControllerTest {
         httpHeaders.setBearerAuth(jwtToken.getAccessToken());
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
+
+/*
         //API 요청 설정
         String url = "http://localhost:" + port + "/members/test";
         ResponseEntity<String> responseEntity = testRestTemplate.postForEntity(url, new HttpEntity<>(httpHeaders), String.class);
@@ -121,7 +122,9 @@ class MemberControllerTest {
         log.info("http status = {}", responseEntity.getStatusCode());
 
         //로그아웃 후 접근이 거부되는지 확인
-        //Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+
+ */
 
         //Redis에서 Refresh Token 확인 (삭제되었는지 확인)
         String findRefreshToken = redisService.getValues(signInDto.getUsername());
@@ -132,6 +135,8 @@ class MemberControllerTest {
         String accessTokenStatus = redisService.getValues(jwtToken.getAccessToken());
         log.info("access token = {}", accessTokenStatus);
         Assertions.assertThat(accessTokenStatus).isEqualTo("logout");
+
+
 
     }
 

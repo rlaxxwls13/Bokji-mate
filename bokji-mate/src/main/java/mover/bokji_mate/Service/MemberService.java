@@ -118,8 +118,10 @@ public class MemberService {
         Member findMember = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Member is not found"));
         findMember.setNickname(memberDto.getNickname());
-        findMember.setPhoneNumber(memberDto.getPhoneNumber());
         findMember.setBirthDate(memberDto.getBirthDate());
+        findMember.setJob(memberDto.getJob());
+        findMember.setWorkExperience(memberDto.getWorkExperience());
+        findMember.setResidence(memberDto.getResidence());
         findMember.setInterests(memberDto.getInterests());
     }
 }

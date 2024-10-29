@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -68,15 +69,27 @@ public class PolicyService {
         findPolicy.setScrapCount(findPolicy.getScrapCount() - 1);
     }
 
+    // 모든 정책 리턴
+    @Transactional
+    public List<PolicyDto> getAllPolicies() {
+        return policyRepository.findAll().stream()
+                .map(PolicyDto::toDto)
+                .collect(Collectors.toList());
+    }
+
     // 스크랩한 정책 전송
     @Transactional
-    public List<Scrap> getScraps(String accessToken) {
+    public List<PolicyDto> getScraps(String accessToken) {
         Claims claims = jwtTokenProvider.parseClaims(accessToken);
         String username = claims.getSubject();
 
-        return scrapRepository.findByMemberUsername(username);
+        List<Scrap> scraps = scrapRepository.findByMemberUsername(username);
+        return scraps.stream()
+                .map(scrap -> PolicyDto.toDto(scrap.getPolicy()))
+                .collect(Collectors.toList());
     }
 
+    //상세 정책 조회
     @Transactional
     public PolicyDto viewPolicy(Long id) {
         Policy findPolicy = policyRepository.findById(id)
@@ -84,6 +97,16 @@ public class PolicyService {
         findPolicy.setViews(findPolicy.getViews() + 1);
         PolicyDto policyDto = PolicyDto.toDto(findPolicy);
         return policyDto;
+    }
+
+    // 추천 정책 전송
+    @Transactional
+    public List<PolicyDto> getRecommendation(String accessToken) {
+        Claims claims = jwtTokenProvider.parseClaims(accessToken);
+        String username = claims.getSubject();
+        return policyRepository.findAll().stream()
+                .map(PolicyDto::toDto)
+                .collect(Collectors.toList());
     }
 
 

@@ -4,9 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import mover.bokji_mate.domain.Policy;
 import mover.bokji_mate.domain.Scrap;
 import mover.bokji_mate.dto.JwtToken;
+import mover.bokji_mate.dto.PolicyDto;
 import mover.bokji_mate.dto.SignInDto;
 import mover.bokji_mate.dto.SignUpDto;
 import mover.bokji_mate.repository.PolicyRepository;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +18,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 @SpringBootTest
 @Transactional
@@ -40,7 +45,6 @@ class PolicyServiceTest {
                 .username("member")
                 .password("12345678")
                 .nickname("닉네임")
-                .phoneNumber("01012341234")
                 .birthDate(LocalDate.parse("2001-07-13"))
                 .interests(List.of("관심사1", "관심사2", "관심사3"))
                 .build();
@@ -70,17 +74,22 @@ class PolicyServiceTest {
         policyRepository.save(policy);
         log.info("policy id = {}", policy.getId());
 
+
         log.info("scrapCount before scrap = {}", policy.getScrapCount());
 
         policyService.scrapPolicy(accessToken, policy.getId());
 
         //2. 스크랩한 정책 확인
-        List<Scrap> scraps = policyService.getScraps(accessToken);
+        List<Policy> scraps = policyService.getScraps(accessToken).stream()
+                .map(PolicyDto::toEntity)
+                .toList();
+        log.info("scrapCount after scrap = {}", policy.getScrapCount());
+
         assertFalse(scraps.isEmpty(), "스크랩한 정책이 존재해야 합니다.");
-        assertTrue(scraps.stream().anyMatch(scrap -> scrap.getPolicy().getId().equals(policy.getId())),
+
+        assertTrue(scraps.stream().anyMatch(scrap -> scrap.getId().equals(policy.getId())),
                 "스크랩한 정책 목록에 정책이 포함되어야 합니다.");
 
-        log.info("scrapCount after scrap = {}", policy.getScrapCount());
     }
 
     // 스크랩 삭제
@@ -97,9 +106,10 @@ class PolicyServiceTest {
         policyService.deleteScrap(accessToken, policy.getId());
 
         //3. 삭제 확인
-        List<Scrap> scrapsAfterDelete = policyService.getScraps(accessToken);
+        List<Policy> scrapsAfterDelete = policyService.getScraps(accessToken)
+                .stream().map(PolicyDto::toEntity).toList();
         assertFalse(scrapsAfterDelete.stream()
-                        .anyMatch(scrap -> scrap.getPolicy().getId().equals(policy.getId())),
+                        .anyMatch(scrap -> scrap.getId().equals(policy.getId())),
                 "삭제된 정책이 스크랩 목록에 존재해서는 안됩니다.");
         log.info("scraps = {}", policy.getScrapCount());
     }
@@ -112,10 +122,14 @@ class PolicyServiceTest {
                 .build();
         policyRepository.save(policy);
 
-        log.info("views = {}", policy.getViews());
+        log.info("before views = {}", policy.getViews());
 
         //2. 정책 조회하기
+        Policy findPolicy = policyService.viewPolicy(policy.getId()).toEntity();
+        Assertions.assertThat(findPolicy.getId()).isEqualTo(policy.getId());
 
         //3. 조회수 확인
+        log.info("after views = {}", policy.getViews());
+
     }
 }

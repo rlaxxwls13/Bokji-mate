@@ -13,9 +13,9 @@ import java.time.LocalDate;
 public class PolicyDto {
     private Long id;
     private String title;
-    private String content;
     private String category;
     private String department;
+    private String content;
     private LocalDate startDate;
     private LocalDate endDate;
     private Long views;
@@ -25,9 +25,9 @@ public class PolicyDto {
         return PolicyDto.builder()
                 .id(policy.getId())
                 .title(policy.getTitle())
-                .content(policy.getContent())
                 .category(policy.getCategory())
                 .department(policy.getDepartment())
+                .content(policy.getContent())
                 .startDate(policy.getStartDate())
                 .endDate(policy.getEndDate())
                 .views(policy.getViews())
@@ -39,9 +39,9 @@ public class PolicyDto {
         return Policy.builder()
                 .id(id)
                 .title(title)
-                .content(content)
                 .category(category)
                 .department(department)
+                .content(content)
                 .startDate(startDate)
                 .endDate(endDate)
                 .views(views)
