@@ -30,22 +30,15 @@ public class NotificationService {
 
     // 메시지 알림
     public SseEmitter subscribe(String accessToken) {
-        log.info("뭐가문제일까2");
         Claims claims = jwtTokenProvider.parseClaims(accessToken);
         String username = claims.getSubject();
         Member member = memberRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Member is not found"));
 
-        log.info("뭐가문제일까3");
-
         //현재 클라이언트를 위한 sseEmitter 생성
         SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
 
-        log.info("뭐가문제일까4");
-
         // user 의 pk 값을 key 값으로 해서 sseEmitter 를 저장
         NotificationController.sseEmitters.put(member.getId(), sseEmitter);
-
-        log.info("뭐가문제일까5");
 
         sseEmitter.onCompletion(() -> NotificationController.sseEmitters.remove(member.getId()));
         sseEmitter.onTimeout(() -> NotificationController.sseEmitters.remove(member.getId()));

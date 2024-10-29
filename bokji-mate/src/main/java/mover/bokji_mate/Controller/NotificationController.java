@@ -28,7 +28,6 @@ public class NotificationController {
     @GetMapping("/subscribe")
     public SseEmitter subscribe(HttpServletRequest request) {
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
-        log.info("뭐가문제일까1");
         SseEmitter sseEmitter = notificationService.subscribe(accessToken);
         return sseEmitter;
     }

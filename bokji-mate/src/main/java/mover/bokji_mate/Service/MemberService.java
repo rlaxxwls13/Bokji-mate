@@ -141,4 +141,12 @@ public class MemberService {
         findMember.setPassword(encodedPassword);
         memberRepository.save(findMember);
     }
+
+    @Transactional
+    public Long getUserId(String accessToken) {
+        Claims claims = jwtTokenProvider.parseClaims(accessToken);
+        String username = claims.getSubject();
+        Member member = memberRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Member is not found"));
+        return member.getId();
+    }
 }
