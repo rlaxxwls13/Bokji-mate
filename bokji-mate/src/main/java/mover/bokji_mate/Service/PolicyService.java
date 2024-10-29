@@ -112,7 +112,8 @@ public class PolicyService {
     // 정책 검색 기능
     @Transactional(readOnly = true)
     public List<PolicyDto> searchPolicy(String keyword) {
-        List<Policy> policies = policyRepository.searchByKeyword(keyword);
+        List<Policy> policies = policyRepository.findByKeyword(keyword);
+        //List<Policy> policies = policyRepository.searchByKeyword(keyword);
         return policies.stream()
                 .map(PolicyDto::toDto)
                 .collect(Collectors.toList());
