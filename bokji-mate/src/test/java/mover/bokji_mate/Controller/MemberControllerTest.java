@@ -190,4 +190,21 @@ class MemberControllerTest {
     public void editMemberInfo() throws Exception{
 
     }
+
+    @Test
+    public void updatePassword() throws Exception {
+        //회원가입
+        memberService.signUp(signUpDto);
+
+        //로그인
+        SignInDto signInDto = SignInDto.builder()
+                .username("member")
+                .password("12345678")
+                .build();
+
+        JwtToken jwtToken = memberService.signIn(signInDto.getUsername(), signInDto.getPassword());
+
+        String newPassword = "87654321";
+        //memberService.updatePassword(jwtToken.getAccessToken(), signUpDto.getPassword(), newPassword);
+    }
 }
