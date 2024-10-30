@@ -37,6 +37,10 @@ public class SecurityConfig {
                         .requestMatchers("members/sign-out").hasRole("USER")
                         .requestMatchers("/calendar/**").hasRole("USER")
                         .requestMatchers("/scrap/**").hasRole("USER")
+                        .requestMatchers("policy/recommendation").hasRole("USER")
+                        .requestMatchers("members/edit").hasRole("USER")
+                        .requestMatchers("members/update-password").hasRole("USER")
+                        .requestMatchers("members/is-signed-in").hasRole("USER")
                         .anyRequest().permitAll())
                         //.anyRequest().authenticated())
                 .addFilterBefore(new JwtVerificationFilter(jwtTokenProvider, redisService),

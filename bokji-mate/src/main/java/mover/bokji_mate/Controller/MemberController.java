@@ -101,6 +101,11 @@ public class MemberController {
         return ResponseEntity.ok(userId);
     }
 
+    @GetMapping("/is-signed-in")
+    public ResponseEntity<String> isSignedIn() {
+        return ResponseEntity.ok("User is signed in");
+    }
+
     @PostMapping("test")
     public String test() {
         return "success";
