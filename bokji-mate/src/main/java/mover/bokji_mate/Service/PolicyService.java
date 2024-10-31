@@ -15,6 +15,7 @@ import mover.bokji_mate.repository.ScrapRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -107,7 +108,21 @@ public class PolicyService {
     public List<PolicyDto> getRecommendation(String accessToken) {
         Claims claims = jwtTokenProvider.parseClaims(accessToken);
         String username = claims.getSubject();
-        return policyRepository.findAll().stream()
+
+        Member findMember = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Member is not found"));
+        List<String> interests = findMember.getInterests();
+        List<Policy> allPolicies = policyRepository.findByCategoriesIn(interests);
+
+        // 추천 정책이 10개 이하일 경우 무작위 정책 추가
+        if (allPolicies.size() < 10) {
+            List<Policy> randomPolicies = policyRepository.findRandomPolicies(10 - allPolicies.size());
+            allPolicies.addAll(randomPolicies);
+        }
+
+        // 중복 제거
+        return allPolicies.stream()
+                .distinct()
                 .map(PolicyDto::toDto)
                 .collect(Collectors.toList());
     }

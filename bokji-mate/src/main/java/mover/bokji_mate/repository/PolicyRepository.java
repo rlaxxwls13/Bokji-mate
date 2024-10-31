@@ -20,4 +20,8 @@ public interface PolicyRepository extends JpaRepository<Policy, Long> {
     @Query("SELECT DISTINCT p FROM Policy p WHERE p.title LIKE %:keyword% OR p.content LIKE %:keyword%")
     List<Policy> findByKeyword(@Param("keyword") String keyword);
     List<Policy> findByEndDate(LocalDate endDate);
+    List<Policy> findByCategoriesIn(List<String> categories);
+
+    @Query("SELECT p FROM Policy p ORDER BY RAND() LIMIT :limit")
+    List<Policy> findRandomPolicies(@Param("limit") int limit);
 }
