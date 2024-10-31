@@ -23,7 +23,7 @@ public class PolicyController {
     private final JwtTokenProvider jwtTokenProvider;
 
     // 정책 스크랩
-    @GetMapping("/scrap/{policyId}")
+    @PostMapping("/scrap/{policyId}")
     public ResponseEntity<String> scrapPolicy(HttpServletRequest request, @PathVariable Long policyId) {
         String accessToken = jwtTokenProvider.resloveAccessToken(request);
         policyService.scrapPolicy(accessToken, policyId);
