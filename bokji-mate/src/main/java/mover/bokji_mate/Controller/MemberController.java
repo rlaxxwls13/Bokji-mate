@@ -102,8 +102,10 @@ public class MemberController {
     }
 
     @GetMapping("/is-signed-in")
-    public ResponseEntity<String> isSignedIn() {
-        return ResponseEntity.ok("User is signed in");
+    public ResponseEntity<Boolean> isSignedIn(HttpServletRequest request) {
+        String accessToken = jwtTokenProvider.resloveAccessToken(request);
+        Boolean signedIn = memberService.isSignedIn(accessToken);
+        return ResponseEntity.ok(signedIn);
     }
 
     @PostMapping("test")

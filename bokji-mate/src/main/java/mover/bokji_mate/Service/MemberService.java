@@ -149,4 +149,15 @@ public class MemberService {
         Member member = memberRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Member is not found"));
         return member.getId();
     }
+
+    @Transactional
+    public Boolean isSignedIn(String accessToken) {
+        try {
+            Claims claims = jwtTokenProvider.parseClaims(accessToken);
+            String username = claims.getSubject();
+            return redisService.getValues(accessToken).equals("false");
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

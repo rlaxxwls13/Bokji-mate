@@ -1,6 +1,7 @@
 package mover.bokji_mate.Controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mover.bokji_mate.Service.PolicyService;
@@ -40,8 +41,14 @@ public class PolicyController {
 
     // 정책 조회 (조회수 증가)
     @GetMapping("/{policyId}")
-    public ResponseEntity<PolicyDto> viewPolicy(@PathVariable Long policyId) {
+    public ResponseEntity<PolicyDto> viewPolicy(@PathVariable Long policyId, HttpServletRequest request) {
+        String accessToken = jwtTokenProvider.resloveAccessToken(request);
         PolicyDto policyDto = policyService.viewPolicy(policyId);
+        if(policyService.isScrapped(accessToken, policyId)) {
+            policyDto.setScraped(true);
+        } else {
+            policyDto.setScraped(false);
+        }
         return ResponseEntity.ok(policyDto);
     }
 

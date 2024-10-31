@@ -1,6 +1,7 @@
 package mover.bokji_mate.Service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mover.bokji_mate.domain.Member;
@@ -26,6 +27,7 @@ public class PolicyService {
     private final ScrapRepository scrapRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
+    private final RedisService redisService;
 
     //정책 스크랩
     @Transactional
@@ -96,6 +98,7 @@ public class PolicyService {
                 .orElseThrow(() -> new RuntimeException("Policy is not found"));
         findPolicy.setViews(findPolicy.getViews() + 1);
         PolicyDto policyDto = PolicyDto.toDto(findPolicy);
+
         return policyDto;
     }
 
@@ -119,4 +122,19 @@ public class PolicyService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public Boolean isScrapped(String accessToken, Long id) {
+        //accesstoken이 없으면 return false, 있는데 정책 스크랩 안했으면 false, 있고 정책스크랩했으면 true
+        try {
+            Claims claims = jwtTokenProvider.parseClaims(accessToken);
+            String username = claims.getSubject();
+
+            if(redisService.getValues(accessToken).equals("false")) {    //false -> 로그인중
+                return scrapRepository.existsByMemberUsernameAndPolicyId(username, id);
+            }
+            return false;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
 }

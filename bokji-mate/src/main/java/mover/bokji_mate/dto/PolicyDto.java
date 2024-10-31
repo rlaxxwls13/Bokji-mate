@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
+@Setter
 @Builder
 @ToString
 @NoArgsConstructor
@@ -21,6 +22,7 @@ public class PolicyDto {
     private LocalDate endDate;
     private Long views;
     private Long scrapCount;
+    private boolean isScraped;
 
     static public PolicyDto toDto(Policy policy) {
         return PolicyDto.builder()
